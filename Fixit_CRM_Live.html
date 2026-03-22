@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Fixit Multiconcepts — Operations CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#0f6e56;--g2:#1d9e75;--g3:#0a4a38;--gx:#d4f0e6;--g50:#e8f7f1;
+  --dk:#060f1e;--d3:#112240;
+  --amber:#c07a1a;--ambl:#faeeda;
+  --red:#c0282a;--redl:#fde8e8;
+  --blue:#1557a8;--bluel:#e6f1fb;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --txt:#0f172a;--txt2:#475569;--txt3:#94a3b8;
+  --bg:#f8fafc;--bg2:#f1f5f9;--white:#fff;
+  --shadow:0 1px 3px rgba(0,0,0,.07);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.14);
+  --r:10px;
+}
+html,body{height:100%;font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--bg);overflow:hidden}
+.shell{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sb{width:220px;background:var(--dk);flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto}
+.sb-top{padding:14px 13px 11px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sb-mark{display:flex;align-items:center;gap:9px}
+.sb-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--g),var(--g2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:10px;color:#fff;flex-shrink:0}
+.sb-name{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:#e2e8f0;line-height:1.2}
+.sb-sub{font-size:9px;color:#334155;letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.sb-user{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+.sb-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--g3),var(--g));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
+.sb-uname{font-size:11px;font-weight:500;color:#94a3b8;line-height:1.2}
+.sb-urole{font-size:9px;color:#334155;text-transform:uppercase;letter-spacing:.04em}
+.sb-pulse{width:7px;height:7px;border-radius:50%;background:#22c55e;margin-left:auto;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(34,197,94,.2)}50%{box-shadow:0 0 0 4px rgba(34,197,94,.08)}}
+/* n8n STATUS */
+.n8n-panel{margin:9px 9px 0;background:rgba(15,110,86,.08);border:1px solid rgba(15,110,86,.14);border-radius:8px;padding:9px 10px}
+.n8n-title{font-size:9px;font-weight:600;color:var(--g2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.n8n-dot{width:5px;height:5px;border-radius:50%;background:var(--g2);animation:pulse 2s infinite}
+.n8n-row{display:flex;align-items:center;justify-content:space-between;padding:2px 0;font-size:9px}
+.n8n-nm{color:#475569}.n8n-on{color:#22c55e;font-weight:600}.n8n-off{color:#ef4444;font-weight:600}
+/* NAV */
+.sb-sec{padding:12px 13px 3px;font-size:9px;font-weight:600;color:#1e3a5f;letter-spacing:.1em;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 13px;cursor:pointer;transition:all .12s;border-left:2px solid transparent;user-select:none}
+.sb-item:hover{background:rgba(255,255,255,.03)}
+.sb-item.active{background:rgba(15,110,86,.12);border-left-color:var(--g2)}
+.sb-ico{font-size:13px;width:15px;text-align:center;flex-shrink:0;opacity:.45}
+.sb-item.active .sb-ico,.sb-item:hover .sb-ico{opacity:.85}
+.sb-lbl{font-size:11px;color:#475569;transition:color .12s}
+.sb-item.active .sb-lbl{color:#e2e8f0;font-weight:500}
+.sb-item:hover .sb-lbl{color:#94a3b8}
+.sb-badge{margin-left:auto;font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px}
+.sb-badge.r{background:rgba(192,40,42,.22);color:#fca5a5}
+.sb-badge.g{background:rgba(15,110,86,.22);color:#6ee7b7}
+.sb-badge.a{background:rgba(192,122,26,.22);color:#fcd34d}
+.sb-badge.b{background:rgba(21,87,168,.22);color:#93c5fd}
+.sb-foot{margin-top:auto;padding:9px 13px;border-top:1px solid rgba(255,255,255,.04);font-size:9px;color:#1e3a5f;text-align:center}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:52px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.tb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--txt)}
+.tb-right{display:flex;align-items:center;gap:7px}
+.tb-search{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:5px 10px;width:180px}
+.tb-search input{border:none;background:transparent;font-size:11px;color:var(--txt);outline:none;width:100%;font-family:'Instrument Sans',sans-serif}
+.tb-search input::placeholder{color:var(--txt3)}
+.tb-ico{width:30px;height:30px;border-radius:6px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .12s}
+.tb-ico:hover{background:var(--bg)}
+.btn{background:var(--g);color:#fff;font-size:11px;font-weight:600;padding:6px 13px;border-radius:7px;border:none;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:background .15s;display:inline-flex;align-items:center;gap:4px}
+.btn:hover{background:var(--g2)}
+.btn:disabled{background:var(--txt3);cursor:not-allowed}
+.btn-sm{padding:4px 9px;font-size:9px}
+.btn-r{background:var(--red)}.btn-r:hover{background:#a32d2d}
+.btn-b{background:var(--blue)}.btn-b:hover{background:#1252a0}
+.btn-a{background:var(--amber)}.btn-a:hover{background:#a0670f}
+.btn-outline{background:transparent;color:var(--txt2);font-size:11px;font-weight:500;padding:6px 13px;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:all .15s}
+.btn-outline:hover{background:var(--bg);border-color:var(--border2)}
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:18px 20px}
+.view{display:none;animation:fi .15s ease}
+.view.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:16px}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.g::before{background:linear-gradient(90deg,var(--g),var(--g2))}
+.stat.a::before{background:linear-gradient(90deg,#c07a1a,#f59e0b)}
+.stat.r::before{background:linear-gradient(90deg,#c0282a,#ef4444)}
+.stat.b::before{background:linear-gradient(90deg,#1557a8,#3b82f6)}
+.stat-n{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--txt);line-height:1;margin-bottom:2px}
+.stat-l{font-size:10px;color:var(--txt2);margin-bottom:4px}
+.stat-d{font-size:9px;font-weight:500}
+.stat-d.up{color:var(--g)}.stat-d.warn{color:var(--amber)}.stat-d.dn{color:var(--red)}
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);margin-bottom:13px}
+.card-h{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.card-h h3{font-family:'Syne',sans-serif;font-weight:700;font-size:11px;color:var(--txt)}
+.card-h .meta{font-size:9px;color:var(--txt3)}
+.card-b{padding:12px 14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:9px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;padding:7px 11px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg);white-space:nowrap}
+.tbl td{padding:8px 11px;border-bottom:1px solid var(--border);font-size:11px;color:var(--txt);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg)}
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:8px;white-space:nowrap}
+.tg{background:var(--g50);color:#065f46}.ta{background:var(--ambl);color:#92400e}
+.tr{background:var(--redl);color:#991b1b}.tb2{background:var(--bluel);color:#1e3a8a}
+.tgr{background:var(--bg2);color:var(--txt2)}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.tg .dot{background:#10b981}.ta .dot{background:#f59e0b}.tr .dot{background:#ef4444}
+/* PROGRESS */
+.prog{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;margin-top:4px}
+.prog-f{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--g2))}
+.prog-f.warn{background:linear-gradient(90deg,#c07a1a,#f59e0b)}.prog-f.dn{background:linear-gradient(90deg,#c0282a,#ef4444)}
+/* KPI */
+.kpi{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.kpi:last-child{border-bottom:none}.kpi-l{color:var(--txt2)}.kpi-v{font-weight:600;color:var(--txt)}
+/* LIST ROW */
+.lrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
+.lrow:last-child{border-bottom:none}
+.lm{flex:1;min-width:0}
+.lt{font-size:11px;font-weight:500;color:var(--txt)}
+.ls{font-size:9px;color:var(--txt3);margin-top:1px}
+/* AVATAR */
+.av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
+.avG{background:linear-gradient(135deg,var(--g3),var(--g2))}.avB{background:linear-gradient(135deg,#1557a8,#3b82f6)}
+.avA{background:linear-gradient(135deg,#c07a1a,#f59e0b)}.avR{background:linear-gradient(135deg,#c0282a,#ef4444)}
+/* MAP */
+.mapbox{background:linear-gradient(135deg,#e8f5ee,#d4f0e6,#e8f5ee);border-radius:8px;min-height:190px;position:relative;overflow:hidden}
+.map-grid{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(15,110,86,.04) 0,rgba(15,110,86,.04) 1px,transparent 1px,transparent 44px),repeating-linear-gradient(90deg,rgba(15,110,86,.04) 0,rgba(15,110,86,.04) 1px,transparent 1px,transparent 44px)}
+.map-pin{position:absolute;font-size:18px;cursor:pointer;transition:transform .15s;line-height:1}
+.map-pin:hover{transform:scale(1.3) translateY(-3px)}
+.map-lbl{font-size:9px;font-weight:600;color:#065f46;position:absolute;bottom:7px;left:11px;text-transform:uppercase;letter-spacing:.06em}
+/* TIMELINE */
+.tl{padding-left:12px;border-left:2px solid var(--gx)}
+.tl-item{position:relative;padding:0 0 9px 11px}
+.tl-item::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--g);border:2px solid #fff;box-shadow:0 0 0 1px var(--g);position:absolute;left:-17px;top:3px}
+.tl-d{font-size:9px;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em}
+.tl-t{font-size:10px;color:var(--txt);line-height:1.4;margin-top:1px}
+/* ALERT BANNERS */
+.abanner{border-radius:7px;padding:10px 14px;font-size:11px;line-height:1.5;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start}
+.ab-g{background:var(--g50);border:1px solid #9fd4b8;color:#065f46}
+.ab-a{background:var(--ambl);border:1px solid #fcd34d;color:#92400e}
+.ab-r{background:var(--redl);border:1px solid #fca5a5;color:#991b1b}
+.ab-b{background:var(--bluel);border:1px solid #bfdbfe;color:#1e3a8a}
+/* FORMS */
+.form-title{font-size:10px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--gx);padding-bottom:4px;margin-bottom:9px;margin-top:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.flbl{font-size:10px;color:var(--txt2);font-weight:500;margin-bottom:3px;display:block}
+.freq{color:var(--red)}
+.fin{width:100%;height:34px;border:1px solid var(--border2);border-radius:6px;background:var(--white);font-size:12px;padding:0 10px;outline:none;color:var(--txt);font-family:'Instrument Sans',sans-serif;transition:border-color .15s}
+.fin:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(15,110,86,.09)}
+.fsel{width:100%;height:34px;border:1px solid var(--border2);border-radius:6px;background:var(--white);font-size:12px;padding:0 8px;color:var(--txt);font-family:'Instrument Sans',sans-serif}
+.fsel:focus{border-color:var(--g);outline:none}
+.fta{width:100%;height:72px;border:1px solid var(--border2);border-radius:6px;background:var(--white);font-size:12px;padding:7px 10px;resize:none;color:var(--txt);font-family:'Instrument Sans',sans-serif;outline:none}
+.fta:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(15,110,86,.09)}
+.frow{margin-bottom:8px}
+.form-actions{display:flex;gap:8px;align-items:center;margin-top:10px}
+.form-note{font-size:9px;color:var(--txt3);margin-top:6px;line-height:1.4}
+/* RESULT */
+.res-box{border-radius:7px;padding:11px 14px;margin-top:10px;font-size:11px;line-height:1.5;display:none}
+.res-box.show{display:block}
+.res-ok{background:var(--g50);border:1px solid #9fd4b8;color:#065f46}
+.res-err{background:var(--redl);border:1px solid #fca5a5;color:#991b1b}
+.res-title{font-weight:600;font-size:12px;margin-bottom:3px}
+.res-pre{font-family:'JetBrains Mono',monospace;font-size:9px;margin-top:6px;white-space:pre-wrap;opacity:.8;background:rgba(0,0,0,.05);padding:6px 8px;border-radius:4px}
+/* SPINNER */
+.sp{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* WEBHOOK URL */
+.wh-url-row{background:#0d1b2a;border-radius:6px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#9fd4b8;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0}
+.wh-cp{background:rgba(15,110,86,.3);color:var(--g2);border:none;border-radius:3px;padding:2px 8px;font-size:9px;cursor:pointer;font-weight:600}
+.wh-cp:hover{background:rgba(15,110,86,.5)}
+.wh-cp.done{background:rgba(21,87,168,.4);color:#93c5fd}
+/* CHANGE IMPACT */
+.ci-tbl{width:100%;border-collapse:collapse}
+.ci-tbl th{background:var(--g);color:#fff;font-size:9px;font-weight:600;padding:7px 11px;text-transform:uppercase;letter-spacing:.07em;text-align:left}
+.ci-tbl td{padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+.ci-score{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border-radius:5px;font-weight:700;font-size:11px;font-family:'Syne',sans-serif}
+.cs2{background:#fde8e8;color:#c0282a}.cs3{background:#faeeda;color:#c07a1a}
+/* ONBOARDING */
+.ob-step{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.ob-step:last-child{border-bottom:none}
+.ob-n{width:22px;height:22px;border-radius:50%;background:var(--g50);color:var(--g);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ob-t{font-size:10px;font-weight:500;color:var(--txt);line-height:1.4}
+/* MYTHROS FRAMEWORK HEADER */
+.mss-header{background:linear-gradient(135deg,var(--dk),var(--d3));border-radius:var(--r);padding:16px 18px;margin-bottom:14px;color:#fff}
+.mss-badge{font-size:9px;font-weight:600;color:var(--g2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.mss-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;margin-bottom:4px}
+.mss-sub{font-size:10px;color:#64748b;line-height:1.5}
+/* TOAST */
+.toast-wrap{position:fixed;bottom:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:6px;max-width:310px}
+.toast-item{background:var(--dk);color:#fff;font-size:11px;font-weight:500;padding:9px 13px;border-radius:8px;border-left:3px solid var(--g2);box-shadow:var(--shadow-lg);animation:slideup .2s ease;line-height:1.4}
+.toast-item.err{border-left-color:#ef4444}.toast-item.ok{border-left-color:#22c55e}
+@keyframes slideup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* HOSTING */
+.host-rec{background:linear-gradient(135deg,var(--g50),#f0fdf4);border:1.5px solid #9fd4b8;border-radius:var(--r);padding:16px 18px;margin-bottom:13px}
+.host-rec-title{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--g3);margin-bottom:3px}
+.host-rec-sub{font-size:11px;color:var(--txt2);margin-bottom:10px;line-height:1.5}
+.host-steps{counter-reset:hs}
+.host-step{display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--gx);font-size:11px;align-items:flex-start}
+.host-step:last-child{border-bottom:none}
+.host-step-n{width:20px;height:20px;border-radius:50%;background:var(--g);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-top">
+    <div class="sb-mark">
+      <div class="sb-icon">FM</div>
+      <div><div class="sb-name">Fixit Multiconcepts</div><div class="sb-sub">Operations CRM</div></div>
+    </div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-av">TM</div>
+    <div><div class="sb-uname">Temilade (GM)</div><div class="sb-urole">General Manager</div></div>
+    <div class="sb-pulse"></div>
+  </div>
+  <div class="n8n-panel">
+    <div class="n8n-title"><div class="n8n-dot"></div>n8n Live Status</div>
+    <div class="n8n-row"><span class="n8n-nm">WF02 Lead Capture</span><span id="st-02" class="n8n-on">&#9679; Checking</span></div>
+    <div class="n8n-row"><span class="n8n-nm">WF03 GPS Clock-In</span><span id="st-03" class="n8n-on">&#9679; Checking</span></div>
+    <div class="n8n-row"><span class="n8n-nm">WF04 Incidents</span><span id="st-04" class="n8n-on">&#9679; Checking</span></div>
+    <div class="n8n-row"><span class="n8n-nm">WF08 Vendors</span><span id="st-08" class="n8n-on">&#9679; Checking</span></div>
+  </div>
+  <div class="sb-sec">Overview</div>
+  <div class="sb-item active" data-view="dashboard"><span class="sb-ico">&#11035;</span><span class="sb-lbl">Dashboard</span></div>
+  <div class="sb-sec">Live n8n Forms</div>
+  <div class="sb-item" data-view="lead-form"><span class="sb-ico">&#128221;</span><span class="sb-lbl">New Enquiry</span><span class="sb-badge g">WF02</span></div>
+  <div class="sb-item" data-view="incident-form"><span class="sb-ico">&#9888;</span><span class="sb-lbl">Log Incident</span><span class="sb-badge r">WF04</span></div>
+  <div class="sb-item" data-view="clockin-form"><span class="sb-ico">&#128205;</span><span class="sb-lbl">Staff Clock-In</span><span class="sb-badge g">WF03</span></div>
+  <div class="sb-item" data-view="vendor-form"><span class="sb-ico">&#128101;</span><span class="sb-lbl">Vendor Apply</span><span class="sb-badge a">WF08</span></div>
+  <div class="sb-sec">Operations</div>
+  <div class="sb-item" data-view="projects"><span class="sb-ico">&#128193;</span><span class="sb-lbl">Projects</span><span class="sb-badge g">12</span></div>
+  <div class="sb-item" data-view="staff"><span class="sb-ico">&#128100;</span><span class="sb-lbl">Staff &amp; HR</span></div>
+  <div class="sb-item" data-view="incidents"><span class="sb-ico">&#9888;</span><span class="sb-lbl">Incidents &amp; H&amp;S</span><span class="sb-badge r">3</span></div>
+  <div class="sb-item" data-view="finance"><span class="sb-ico">&#128196;</span><span class="sb-lbl">Invoices</span><span class="sb-badge a">2</span></div>
+  <div class="sb-item" data-view="vendors"><span class="sb-ico">&#128101;</span><span class="sb-lbl">Vendor Network</span></div>
+  <div class="sb-item" data-view="clients"><span class="sb-ico">&#127970;</span><span class="sb-lbl">Clients</span></div>
+  <div class="sb-sec">Mythros Framework</div>
+  <div class="sb-item" data-view="changeplan"><span class="sb-ico">&#128260;</span><span class="sb-lbl">Change Impact Plan</span></div>
+  <div class="sb-item" data-view="onboarding"><span class="sb-ico">&#127891;</span><span class="sb-lbl">Staff Onboarding</span></div>
+  <div class="sb-sec">System</div>
+  <div class="sb-item" data-view="hosting"><span class="sb-ico">&#127760;</span><span class="sb-lbl">Hosting Guide</span><span class="sb-badge b">New</span></div>
+  <div class="sb-item" data-view="test-panel"><span class="sb-ico">&#128295;</span><span class="sb-lbl">Test &amp; Debug</span></div>
+  <div class="sb-item" data-view="webhooks"><span class="sb-ico">&#9889;</span><span class="sb-lbl">Webhook URLs</span></div>
+  <div class="sb-foot">Mythros Solution Services &middot; 2026</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">Dashboard</div>
+    <div class="tb-right">
+      <div class="tb-search"><span style="color:var(--txt3)">&#128269;</span><input placeholder="Search..."/></div>
+      <div class="tb-ico" id="refresh-btn" title="Refresh n8n status">&#8635;</div>
+      <button class="btn btn-sm" onclick="sv('lead-form')">&#43; New Enquiry</button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="stats">
+      <div class="stat g"><div class="stat-n">12</div><div class="stat-l">Active projects</div><div class="stat-d up">&#8593; All operational</div></div>
+      <div class="stat a"><div class="stat-n">47</div><div class="stat-l">Staff on site</div><div class="stat-d warn">GPS via WF03</div></div>
+      <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Open incidents</div><div class="stat-d dn">1 high &middot; GM alerted</div></div>
+      <div class="stat b"><div class="stat-n">&#8358;2.4M</div><div class="stat-l">Invoiced this month</div><div class="stat-d up">75% collected</div></div>
+    </div>
+    <div class="g2">
+      <div>
+        <div class="card">
+          <div class="card-h"><h3>Active projects</h3><button class="btn btn-sm" onclick="sv('projects')">View all</button></div>
+          <div class="card-b"><div class="lrow"><div class="av avG" style="font-size:8px">OB</div><div class="lm"><div class="lt">Oshodi Bus Interchange</div><div class="ls">Planet Projects</div><div class="prog"><div class="prog-f" style="width:78%"></div></div></div><div><span class="tag tg"><span class="dot"></span>On track</span><div style="font-size:9px;color:var(--txt3);text-align:right">78%</div></div></div><div class="lrow"><div class="av avG" style="font-size:8px">BN</div><div class="lm"><div class="lt">Borge Nigeria HQ</div><div class="ls">Borge Nigeria</div><div class="prog"><div class="prog-f" style="width:91%"></div></div></div><div><span class="tag tg"><span class="dot"></span>On track</span><div style="font-size:9px;color:var(--txt3);text-align:right">91%</div></div></div><div class="lrow"><div class="av avA" style="font-size:8px">KL</div><div class="lm"><div class="lt">Kaftan Lounge</div><div class="ls">Kaftan Lounge</div><div class="prog"><div class="prog-f warn" style="width:44%"></div></div></div><div><span class="tag ta"><span class="dot"></span>At risk</span><div style="font-size:9px;color:var(--txt3);text-align:right">44%</div></div></div><div class="lrow"><div class="av avG" style="font-size:8px">AI</div><div class="lm"><div class="lt">A.I.L. Infrastructures</div><div class="ls">A.I.L. Ltd</div><div class="prog"><div class="prog-f" style="width:62%"></div></div></div><div><span class="tag tg"><span class="dot"></span>On track</span><div style="font-size:9px;color:var(--txt3);text-align:right">62%</div></div></div><div class="lrow"><div class="av avR" style="font-size:8px">CC</div><div class="lm"><div class="lt">Celestial Church</div><div class="ls">CCC Lagos</div><div class="prog"><div class="prog-f dn" style="width:28%"></div></div></div><div><span class="tag tr"><span class="dot"></span>Delayed</span><div style="font-size:9px;color:var(--txt3);text-align:right">28%</div></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Quick actions</h3><span class="meta">Posts directly to n8n</span></div>
+          <div class="card-b" style="display:flex;flex-direction:column;gap:7px">
+            <button class="btn" style="justify-content:center" onclick="sv('lead-form')">&#128221; New enquiry &rarr; WF02 &rarr; Google Sheets + WhatsApp</button>
+            <button class="btn btn-r" style="justify-content:center" onclick="sv('incident-form')">&#9888; Log incident &rarr; WF04 &rarr; GM + MD WhatsApp alert</button>
+            <button class="btn btn-b" style="justify-content:center" onclick="sv('clockin-form')">&#128205; Staff clock-in &rarr; WF03 &rarr; GPS verify + alert if late</button>
+            <button class="btn btn-a" style="justify-content:center" onclick="sv('vendor-form')">&#128101; Vendor apply &rarr; WF08 &rarr; GM WhatsApp + Gmail + 48h</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>n8n automation log</h3><span class="meta" id="last-action">arie08.app.n8n.cloud</span></div>
+          <div class="card-b">
+            <div class="tl" id="activity-log">
+              <div class="tl-item"><div class="tl-d">WF09 &middot; 07:00am</div><div class="tl-t">Morning digest sent to Temilade via WhatsApp</div></div>
+              <div class="tl-item"><div class="tl-d">WF05 &middot; 08:00am</div><div class="tl-t">Invoice reminder: INV-0439 overdue 40 days</div></div>
+              <div class="tl-item"><div class="tl-d">WF04 &middot; 08:30am</div><div class="tl-t">Incident INC-001 logged &mdash; High severity &middot; GM + MD alerted</div></div>
+              <div class="tl-item"><div class="tl-d">WF08 &middot; 08:52am</div><div class="tl-t">New vendor: CleanTech Ltd &mdash; GM notified</div></div>
+              <div class="tl-item"><div class="tl-d">WF03 &middot; 09:14am</div><div class="tl-t">Adebayo clocked in &mdash; Oshodi Bus Interchange</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-h"><h3>GPS deployment</h3><span class="meta" style="color:var(--g)">47 active &middot; WF03</span></div>
+          <div class="mapbox">
+            <div class="map-grid"></div>
+            <div class="map-pin" style="top:28%;left:38%">&#128205;</div>
+            <div class="map-pin" style="top:52%;left:56%">&#128205;</div>
+            <div class="map-pin" style="top:66%;left:34%">&#9888;&#65039;</div>
+            <div class="map-pin" style="top:24%;left:64%">&#128205;</div>
+            <div class="map-pin" style="top:44%;left:24%">&#128205;</div>
+            <div class="map-lbl">Lagos, Nigeria &middot; Workflow 03</div>
+          </div>
+          <div style="padding:7px 13px;display:flex;gap:11px;font-size:9px;border-top:1px solid var(--border)">
+            <span style="color:var(--g)">&#128205; 5 sites</span>
+            <span style="color:var(--txt2)">47 deployed</span>
+            <span style="color:var(--amber)">&#9888; 4 late &middot; GM alerted</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3>Finance snapshot</h3><span class="meta">WF05 daily 8am</span></div>
+          <div class="card-b">
+            <div class="kpi"><span class="kpi-l">Invoiced</span><span class="kpi-v">&#8358;2,400,000</span></div>
+            <div class="kpi"><span class="kpi-l">Collected</span><span class="kpi-v" style="color:var(--g)">&#8358;1,800,000</span></div>
+            <div class="kpi"><span class="kpi-l">Outstanding</span><span class="kpi-v" style="color:var(--amber)">&#8358;600,000</span></div>
+            <div class="kpi"><span class="kpi-l">Overdue 30+ days</span><span class="kpi-v" style="color:var(--red)">&#8358;150,000 &middot; GM escalated</span></div>
+            <div class="kpi"><span class="kpi-l">Google Sheets sync</span><span class="kpi-v" style="color:var(--g)">FixiT Multiconcept &middot; Leads tab</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ LEAD FORM WF02 ══ -->
+  <div class="view" id="view-lead-form">
+    <div class="abanner ab-b">&#9889; <strong>Live connection:</strong> This form POSTs to n8n Workflow 02. n8n logs to Google Sheets (FixiT Multiconcept &rarr; Leads), sends WhatsApp to GM, and sends Gmail confirmation to client.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>New enquiry — Lead capture</h3><span class="meta" style="color:var(--g)">WF02 &middot; Live</span></div>
+        <div class="card-b">
+          <div class="form-title">Contact details</div>
+          <div class="form-grid">
+            <div class="frow"><label class="flbl">Full name <span class="freq">*</span></label><input class="fin" id="l-name" placeholder="Emeka Okonkwo"/></div>
+            <div class="frow"><label class="flbl">Phone <span class="freq">*</span></label><input class="fin" id="l-phone" placeholder="+234 801 234 5678"/></div>
+            <div class="frow"><label class="flbl">Email</label><input class="fin" id="l-email" placeholder="emeka@company.com" type="email"/></div>
+            <div class="frow"><label class="flbl">Enquiry type <span class="freq">*</span></label>
+              <select class="fsel" id="l-type">
+                <option value="">Select...</option>
+                <option value="facilities_management">Facilities Management</option>
+                <option value="janitorial">Janitorial Services</option>
+                <option value="space_planning">Space Planning</option>
+                <option value="asset_management">Asset Management</option>
+                <option value="manpower">Manpower Services</option>
+                <option value="general">General Enquiry</option>
+              </select>
+            </div>
+          </div>
+          <div class="frow" style="margin-top:4px"><label class="flbl">Message <span class="freq">*</span></label><textarea class="fta" id="l-msg" placeholder="Describe the facility management need..."></textarea></div>
+          <div class="form-actions">
+            <button class="btn" id="l-btn" style="flex:1;justify-content:center">Send to n8n <span class="sp" id="l-sp" style="display:none"></span></button>
+            <button class="btn-outline" onclick="clearForm(['l-name','l-phone','l-email','l-msg'],'l-type','l-res')">Clear</button>
+          </div>
+          <div id="l-res" class="res-box"></div>
+          <div class="form-note">&#8594; WF02: Google Sheets &middot; WhatsApp GM &middot; Gmail to client &middot; CRM lead</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Endpoint &amp; flow</h3></div>
+        <div class="card-b">
+          <div style="font-size:10px;color:var(--txt2);margin-bottom:4px">Webhook URL</div>
+          <div class="wh-url-row"><span>https://arie08.app.n8n.cloud/webhook/fixit-lead</span><button class="wh-cp" onclick="copyUrl(this,'https://arie08.app.n8n.cloud/webhook/fixit-lead')">Copy</button></div>
+          <div style="margin-top:12px">
+          <div class="tl">
+            <div class="tl-item"><div class="tl-d">n8n receives POST</div><div class="tl-t">Set Lead Fields &rarr; adds source, built_by=Mythros</div></div>
+            <div class="tl-item"><div class="tl-d">Create CRM Lead</div><div class="tl-t">POST to FIXIT_CRM_URL/api/leads</div></div>
+            <div class="tl-item"><div class="tl-d">Log to Google Sheets</div><div class="tl-t">Appends to FixiT Multiconcept &rarr; Leads tab</div></div>
+            <div class="tl-item"><div class="tl-d">WhatsApp GM + Gmail</div><div class="tl-t">Alert to GM_WHATSAPP &middot; Confirmation to client</div></div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INCIDENT FORM WF04 ══ -->
+  <div class="view" id="view-incident-form">
+    <div class="abanner ab-r">&#9888; <strong>HIGH severity</strong> sends instant WhatsApp to both GM and MD. Medium/Low goes to GM only. All incidents are logged to CRM with an auto-generated INC reference.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Log incident</h3><span class="meta" style="color:var(--red)">WF04 &middot; Live</span></div>
+        <div class="card-b">
+          <div class="form-title">Incident details</div>
+          <div class="form-grid">
+            <div class="frow"><label class="flbl">Site <span class="freq">*</span></label>
+              <select class="fsel" id="i-site">
+                <option value="">Select site...</option>
+                <option>Oshodi Bus Interchange</option><option>Borge Nigeria HQ</option>
+                <option>Kaftan Lounge</option><option>A.I.L. Infrastructures</option>
+                <option>Celestial Church Lagos</option><option>Glenstar Marine Ltd</option>
+                <option>Pittol and Company</option>
+              </select>
+            </div>
+            <div class="frow"><label class="flbl">Severity <span class="freq">*</span></label>
+              <select class="fsel" id="i-sev">
+                <option value="">Select...</option>
+                <option value="high">High &mdash; Immediate action</option>
+                <option value="medium">Medium &mdash; Monitor and address</option>
+                <option value="low">Low &mdash; Log and review</option>
+              </select>
+            </div>
+            <div class="frow"><label class="flbl">Logged by <span class="freq">*</span></label><input class="fin" id="i-staff" placeholder="Your full name"/></div>
+            <div class="frow"><label class="flbl">Date &amp; time</label><input class="fin" id="i-dt" type="datetime-local"/></div>
+          </div>
+          <div class="frow" style="margin-top:4px"><label class="flbl">Description <span class="freq">*</span></label><textarea class="fta" id="i-desc" placeholder="What happened, where, who was involved..."></textarea></div>
+          <div class="frow"><label class="flbl">Immediate action taken</label><textarea class="fta" id="i-action" placeholder="What was done immediately?"></textarea></div>
+          <div class="form-actions">
+            <button class="btn btn-r" id="i-btn" style="flex:1;justify-content:center">Log &amp; Alert <span class="sp" id="i-sp" style="display:none"></span></button>
+            <button class="btn-outline" onclick="clearForm(['i-staff','i-desc','i-action','i-dt'],'i-site','i-res');document.getElementById('i-sev').selectedIndex=0;">Clear</button>
+          </div>
+          <div id="i-res" class="res-box"></div>
+          <div class="form-note">HIGH: GM + MD WhatsApp instantly &middot; MED/LOW: GM only</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Endpoint &amp; flow</h3></div>
+        <div class="card-b">
+          <div class="wh-url-row"><span>https://arie08.app.n8n.cloud/webhook/fixit-incident</span><button class="wh-cp" onclick="copyUrl(this,'https://arie08.app.n8n.cloud/webhook/fixit-incident')">Copy</button></div>
+          <div style="margin-top:12px">
+          <div class="tl">
+            <div class="tl-item"><div class="tl-d">Set Incident Fields</div><div class="tl-t">Generates INC-YYYYMMDD-HHmm ref, normalises severity</div></div>
+            <div class="tl-item"><div class="tl-d">Log CRM Incident</div><div class="tl-t">POST to /api/incidents with status=open</div></div>
+            <div class="tl-item"><div class="tl-d">IF High Severity</div><div class="tl-t">Branches: HIGH &rarr; GM + MD, MED/LOW &rarr; GM only</div></div>
+            <div class="tl-item"><div class="tl-d">WhatsApp alerts sent</div><div class="tl-t">Instant. No delay on HIGH severity.</div></div>
+          </div>
+          </div>
+          <div style="margin-top:10px;background:var(--redl);border-radius:6px;padding:8px 11px;font-size:10px;color:#991b1b;line-height:1.5">
+            Test: select High severity &rarr; submit &rarr; WhatsApp should arrive on GM number within 5 seconds.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CLOCK-IN FORM WF03 ══ -->
+  <div class="view" id="view-clockin-form">
+    <div class="abanner ab-g">&#128205; GPS coordinates are validated against 7 registered Fixit sites in n8n. Staff clocking in after 07:15 triggers a late alert to GM via WhatsApp.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Staff GPS clock-in</h3><span class="meta" style="color:var(--g)">WF03 &middot; Live</span></div>
+        <div class="card-b">
+          <div class="form-title">Staff details</div>
+          <div class="form-grid">
+            <div class="frow"><label class="flbl">Staff ID <span class="freq">*</span></label><input class="fin" id="c-id" placeholder="e.g. STF-001"/></div>
+            <div class="frow"><label class="flbl">Full name <span class="freq">*</span></label><input class="fin" id="c-name" placeholder="Staff full name"/></div>
+            <div class="frow"><label class="flbl">Clock type</label>
+              <select class="fsel" id="c-type"><option value="in">Clock In</option><option value="out">Clock Out</option></select>
+            </div>
+          </div>
+          <div class="form-title">GPS coordinates</div>
+          <div class="form-grid">
+            <div class="frow"><label class="flbl">Latitude <span class="freq">*</span></label><input class="fin" id="c-lat" placeholder="e.g. 6.5521"/></div>
+            <div class="frow"><label class="flbl">Longitude <span class="freq">*</span></label><input class="fin" id="c-lng" placeholder="e.g. 3.3467"/></div>
+          </div>
+          <button class="btn-outline" id="gps-btn" style="font-size:10px;padding:5px 11px;margin:4px 0">&#128205; Use my current GPS location</button>
+          <div id="gps-status" style="font-size:10px;color:var(--txt3);margin-top:4px"></div>
+          <div class="form-actions" style="margin-top:8px">
+            <button class="btn btn-b" id="c-btn" style="flex:1;justify-content:center">Submit Clock-In <span class="sp" id="c-sp" style="display:none"></span></button>
+            <button class="btn-outline" onclick="clearForm(['c-id','c-name','c-lat','c-lng'],null,'c-res');document.getElementById('gps-status').textContent='';">Clear</button>
+          </div>
+          <div id="c-res" class="res-box"></div>
+          <div class="form-note">n8n validates GPS against 7 sites &middot; Late = 07:15+ &middot; Unknown location flagged</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Registered GPS sites</h3></div>
+        <div class="card-b" style="padding:0">
+          <table class="tbl">
+            <thead><tr><th>Site</th><th>Lat</th><th>Lng</th><th>Radius</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:500">Oshodi Bus Interchange</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.5521</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.3467</td><td>0.5km</td></tr>
+              <tr><td style="font-weight:500">Borge Nigeria HQ</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.4314</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.4213</td><td>0.3km</td></tr>
+              <tr><td style="font-weight:500">Kaftan Lounge</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.4698</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.5852</td><td>0.2km</td></tr>
+              <tr><td style="font-weight:500">A.I.L. Infrastructures</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.5892</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.3512</td><td>0.4km</td></tr>
+              <tr><td style="font-weight:500">Celestial Church Lagos</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.5027</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.3786</td><td>0.3km</td></tr>
+              <tr><td style="font-weight:500">Glenstar Marine Ltd</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.4500</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.4000</td><td>0.3km</td></tr>
+              <tr><td style="font-weight:500">Pittol and Company</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">6.6012</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">3.3400</td><td>0.3km</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ VENDOR FORM WF08 ══ -->
+  <div class="view" id="view-vendor-form">
+    <div class="abanner ab-a">&#128101; WF08 logs the vendor to CRM, sends WhatsApp to GM, sends a Gmail confirmation to the vendor, then waits exactly 48 hours and sends a follow-up reminder to GM if still pending.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Vendor application</h3><span class="meta" style="color:var(--amber)">WF08 &middot; Live</span></div>
+        <div class="card-b">
+          <div class="form-title">Company details</div>
+          <div class="form-grid">
+            <div class="frow"><label class="flbl">Company name <span class="freq">*</span></label><input class="fin" id="v-co" placeholder="e.g. CleanPro Ltd"/></div>
+            <div class="frow"><label class="flbl">Contact name <span class="freq">*</span></label><input class="fin" id="v-cn" placeholder="Full name"/></div>
+            <div class="frow"><label class="flbl">Email <span class="freq">*</span></label><input class="fin" id="v-em" placeholder="contact@company.com" type="email"/></div>
+            <div class="frow"><label class="flbl">Phone <span class="freq">*</span></label><input class="fin" id="v-ph" placeholder="+234 801 234 5678"/></div>
+            <div class="frow"><label class="flbl">Coverage area</label><input class="fin" id="v-cv" placeholder="e.g. Lagos, Abuja"/></div>
+            <div class="frow"><label class="flbl">Primary service <span class="freq">*</span></label>
+              <select class="fsel" id="v-sv">
+                <option value="">Select...</option>
+                <option>Janitorial / Cleaning</option><option>Security Services</option>
+                <option>Electrical Works</option><option>Plumbing</option>
+                <option>Landscaping</option><option>Waste Management</option>
+                <option>Pest Control</option><option>HVAC / Air Conditioning</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:10px">
+            <button class="btn btn-a" id="v-btn" style="flex:1;justify-content:center">Submit Application <span class="sp" id="v-sp" style="display:none"></span></button>
+            <button class="btn-outline" onclick="clearForm(['v-co','v-cn','v-em','v-ph','v-cv'],'v-sv','v-res')">Clear</button>
+          </div>
+          <div id="v-res" class="res-box"></div>
+          <div class="form-note">GM WhatsApp alert &middot; Gmail confirmation to vendor &middot; 48h follow-up auto-triggered</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>WF08 flow</h3></div>
+        <div class="card-b">
+          <div class="wh-url-row"><span>https://arie08.app.n8n.cloud/webhook/fixit-vendor-apply</span><button class="wh-cp" onclick="copyUrl(this,'https://arie08.app.n8n.cloud/webhook/fixit-vendor-apply')">Copy</button></div>
+          <div style="margin-top:12px">
+          <div class="tl">
+            <div class="tl-item"><div class="tl-d">Set Vendor Fields</div><div class="tl-t">status=pending_review, applied_at=now</div></div>
+            <div class="tl-item"><div class="tl-d">Create Vendor Record</div><div class="tl-t">POST to /api/vendors</div></div>
+            <div class="tl-item"><div class="tl-d">Notify GM + Confirm Vendor</div><div class="tl-t">Parallel: WhatsApp to GM &middot; Gmail to vendor</div></div>
+            <div class="tl-item"><div class="tl-d">Wait 48 hours</div><div class="tl-t">n8n pauses workflow exactly 48 hours</div></div>
+            <div class="tl-item"><div class="tl-d">GM follow-up reminder</div><div class="tl-t">If pending, another WhatsApp sent to GM</div></div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="view" id="view-projects">
+    <div class="stats">
+      <div class="stat g"><div class="stat-n">12</div><div class="stat-l">Total active</div></div>
+      <div class="stat g"><div class="stat-n">8</div><div class="stat-l">On track</div></div>
+      <div class="stat a"><div class="stat-n">2</div><div class="stat-l">At risk</div></div>
+      <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Delayed</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>All projects</h3></div>
+      <table class="tbl">
+        <thead><tr><th>Project</th><th>Client</th><th>Location</th><th>Services</th><th>Progress</th><th>Status</th><th></th></tr></thead>
+        <tbody><tr><td style="font-weight:500">Oshodi Bus Interchange</td><td style="color:var(--txt2)">Planet Projects Ltd</td><td style="color:var(--txt2)">Oshodi, Lagos</td><td style="color:var(--txt2);font-size:10px">Facilities, Janitorial, Space</td><td><div style="font-size:10px;color:var(--txt2)">78%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:78%"></div></div></td><td><span class="tag tg">On track</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">Borge Nigeria HQ</td><td style="color:var(--txt2)">Borge Nigeria Ltd</td><td style="color:var(--txt2)">Victoria Island</td><td style="color:var(--txt2);font-size:10px">Janitorial, Maintenance</td><td><div style="font-size:10px;color:var(--txt2)">91%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:91%"></div></div></td><td><span class="tag tg">On track</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">Kaftan Lounge</td><td style="color:var(--txt2)">Kaftan Lounge</td><td style="color:var(--txt2)">Ikoyi</td><td style="color:var(--txt2);font-size:10px">Commercial Cleaning</td><td><div style="font-size:10px;color:var(--txt2)">44%</div><div class="prog" style="width:80px"><div class="prog-f warn" style="width:44%"></div></div></td><td><span class="tag ta">At risk</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">A.I.L. Infrastructures</td><td style="color:var(--txt2)">A.I.L. Ltd</td><td style="color:var(--txt2)">Multi-site</td><td style="color:var(--txt2);font-size:10px">Asset, Space Planning</td><td><div style="font-size:10px;color:var(--txt2)">62%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:62%"></div></div></td><td><span class="tag tg">On track</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">Glenstar Marine</td><td style="color:var(--txt2)">Glenstar Marine Ltd</td><td style="color:var(--txt2)">Lagos</td><td style="color:var(--txt2);font-size:10px">Facilities, Manpower</td><td><div style="font-size:10px;color:var(--txt2)">55%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:55%"></div></div></td><td><span class="tag tg">On track</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">Celestial Church</td><td style="color:var(--txt2)">CCC Lagos</td><td style="color:var(--txt2)">Ojodu</td><td style="color:var(--txt2);font-size:10px">Premises, Space</td><td><div style="font-size:10px;color:var(--txt2)">28%</div><div class="prog" style="width:80px"><div class="prog-f dn" style="width:28%"></div></div></td><td><span class="tag tr">Delayed</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">Divergent Nigeria</td><td style="color:var(--txt2)">Divergent Ltd</td><td style="color:var(--txt2)">Lekki</td><td style="color:var(--txt2);font-size:10px">Janitorial, Compliance</td><td><div style="font-size:10px;color:var(--txt2)">73%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:73%"></div></div></td><td><span class="tag tg">On track</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">Pittol and Company</td><td style="color:var(--txt2)">Pittol Ltd</td><td style="color:var(--txt2)">Lagos</td><td style="color:var(--txt2);font-size:10px">Facilities, Manpower</td><td><div style="font-size:10px;color:var(--txt2)">81%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:81%"></div></div></td><td><span class="tag tg">On track</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr><tr><td style="font-weight:500">NAHCO Terminal</td><td style="color:var(--txt2)">NAHCO</td><td style="color:var(--txt2)">Lagos Airport</td><td style="color:var(--txt2);font-size:10px">Facilities, H&S</td><td><div style="font-size:10px;color:var(--txt2)">100%</div><div class="prog" style="width:80px"><div class="prog-f" style="width:100%"></div></div></td><td><span class="tag ttgr">Completed</span></td><td><button class="btn" style="padding:3px 8px;font-size:9px" onclick="sv('incident-form')">+ Incident</button></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="view" id="view-staff">
+    <div class="stats">
+      <div class="stat g"><div class="stat-n">51</div><div class="stat-l">Total staff</div></div>
+      <div class="stat b"><div class="stat-n">47</div><div class="stat-l">On site</div><div class="stat-d up">GPS verified WF03</div></div>
+      <div class="stat a"><div class="stat-n">4</div><div class="stat-l">Late</div><div class="stat-d warn">GM alerted</div></div>
+      <div class="stat g"><div class="stat-n">4</div><div class="stat-l">On leave</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Staff roster</h3><button class="btn btn-sm btn-b" onclick="sv('clockin-form')">+ Clock-In</button></div>
+        <table class="tbl">
+          <thead><tr><th>Staff</th><th>Role</th><th>Site</th><th>Clock-in</th><th>Status</th><th></th></tr></thead>
+          <tbody><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avG" style="font-size:8px">AO</div><span style="font-weight:500">Adebayo Okonkwo</span></div></td><td style="color:var(--txt2)">Site Supervisor</td><td style="color:var(--txt2)">Oshodi</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">07:02</td><td><span class="tag tg">On site</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avG" style="font-size:8px">CF</div><span style="font-weight:500">Chukwuemeka Fashola</span></div></td><td style="color:var(--txt2)">Cleaning Lead</td><td style="color:var(--txt2)">Borge HQ</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">07:18</td><td><span class="tag tg">On site</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avA" style="font-size:8px">BN</div><span style="font-weight:500">Blessing Nwosu</span></div></td><td style="color:var(--txt2)">Janitor</td><td style="color:var(--txt2)">—</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">—</td><td><span class="tag ta">Annual leave</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avR" style="font-size:8px">IA</div><span style="font-weight:500">Ibrahim Adamu</span></div></td><td style="color:var(--txt2)">Security</td><td style="color:var(--txt2)">Oshodi</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">07:45</td><td><span class="tag tr">Late +30m</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avG" style="font-size:8px">FK</div><span style="font-weight:500">Fatima Kazeem</span></div></td><td style="color:var(--txt2)">Operations</td><td style="color:var(--txt2)">A.I.L.</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">07:05</td><td><span class="tag tg">On site</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avG" style="font-size:8px">TJ</div><span style="font-weight:500">Taiwo Johnson</span></div></td><td style="color:var(--txt2)">Cleaner</td><td style="color:var(--txt2)">Kaftan</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">07:12</td><td><span class="tag tg">On site</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr><tr><td><div style="display:flex;align-items:center;gap:7px"><div class="av avG" style="font-size:8px">OA</div><span style="font-weight:500">Oluwaseun Adeleke</span></div></td><td style="color:var(--txt2)">Site Supervisor</td><td style="color:var(--txt2)">CCC</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">07:08</td><td><span class="tag tg">On site</span></td><td><button class="btn" style="padding:2px 7px;font-size:9px;background:var(--blue)" onclick="sv('clockin-form')">Clock-in</button></td></tr></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>GPS map</h3><span class="meta" style="color:var(--g)">Live &middot; WF03</span></div>
+        <div class="mapbox" style="min-height:230px">
+          <div class="map-grid"></div>
+          <div class="map-pin" style="top:28%;left:38%">&#128205;</div>
+          <div class="map-pin" style="top:52%;left:56%">&#128205;</div>
+          <div class="map-pin" style="top:66%;left:34%">&#9888;&#65039;</div>
+          <div class="map-pin" style="top:24%;left:64%">&#128205;</div>
+          <div class="map-pin" style="top:44%;left:24%">&#128205;</div>
+          <div class="map-lbl">Real-time GPS &middot; WF03</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INCIDENTS -->
+  <div class="view" id="view-incidents">
+    <div class="stats">
+      <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Open incidents</div></div>
+      <div class="stat g"><div class="stat-n">0</div><div class="stat-l">Lost time injuries</div></div>
+      <div class="stat b"><div class="stat-n">47</div><div class="stat-l">H&S inspections</div></div>
+      <div class="stat g"><div class="stat-n">100%</div><div class="stat-l">PPE compliance</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Incident log</h3><button class="btn btn-sm btn-r" onclick="sv('incident-form')">+ Log Incident</button></div>
+      <div style="font-size:9px;color:var(--txt3);padding:5px 12px;background:var(--g50);border-bottom:1px solid var(--gx)">Auto-logged via WF04 &middot; Webhook /fixit-incident &middot; HIGH severity = GM + MD WhatsApp instant alert</div>
+      <table class="tbl">
+        <thead><tr><th>Ref</th><th>Description</th><th>Site</th><th>Severity</th><th>Status</th><th>Source</th></tr></thead>
+        <tbody><tr><td style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txt3)">INC-001</td><td style="font-weight:500">Slip hazard — wet floor entrance</td><td style="color:var(--txt2)">Oshodi</td><td><span class="tag tr">High</span></td><td><span class="tag tr">Open</span></td><td><span style="font-size:9px;color:var(--txt3)">WF04</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txt3)">INC-002</td><td style="font-weight:500">Equipment fault — lift floor 3</td><td style="color:var(--txt2)">Borge HQ</td><td><span class="tag ta">Medium</span></td><td><span class="tag ta">In review</span></td><td><span style="font-size:9px;color:var(--txt3)">WF04</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txt3)">INC-003</td><td style="font-weight:500">Cleaning shortfall south wing</td><td style="color:var(--txt2)">Kaftan</td><td><span class="tag tg">Low</span></td><td><span class="tag ta">Resolving</span></td><td><span style="font-size:9px;color:var(--txt3)">WF04</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txt3)">INC-004</td><td style="font-weight:500">Near miss — loading bay</td><td style="color:var(--txt2)">A.I.L.</td><td><span class="tag tg">Low</span></td><td><span class="tag tgr">Closed</span></td><td><span style="font-size:9px;color:var(--txt3)">WF04</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--txt3)">INC-005</td><td style="font-weight:500">Security breach perimeter</td><td style="color:var(--txt2)">CCC</td><td><span class="tag ta">Medium</span></td><td><span class="tag tgr">Closed</span></td><td><span style="font-size:9px;color:var(--txt3)">WF04</span></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FINANCE -->
+  <div class="view" id="view-finance">
+    <div class="stats">
+      <div class="stat b"><div class="stat-n">&#8358;2.4M</div><div class="stat-l">Invoiced</div></div>
+      <div class="stat g"><div class="stat-n">&#8358;1.8M</div><div class="stat-l">Collected</div></div>
+      <div class="stat a"><div class="stat-n">&#8358;600K</div><div class="stat-l">Outstanding</div><div class="stat-d warn">Auto-chasers sent</div></div>
+      <div class="stat r"><div class="stat-n">&#8358;150K</div><div class="stat-l">Overdue 30+d</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Invoice tracker</h3><span class="meta">WF05 sends reminders daily 8am</span></div>
+      <table class="tbl">
+        <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Due</th><th>Days overdue</th><th>Status</th></tr></thead>
+        <tbody><tr><td style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--g)">INV-0441</td><td style="font-weight:500">Planet Projects Ltd</td><td style="font-family:JetBrains Mono,monospace">&#8358;480,000</td><td style="color:var(--txt2)">14 Mar 2026</td><td style="color:var(--amber);font-weight:500">8 days</td><td><span class="tag ta">Outstanding</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--g)">INV-0440</td><td style="font-weight:500">Borge Nigeria Ltd</td><td style="font-family:JetBrains Mono,monospace">&#8358;220,000</td><td style="color:var(--txt2)">01 Mar 2026</td><td style="color:var(--g);font-weight:500">—</td><td><span class="tag tg">Paid</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--g)">INV-0439</td><td style="font-weight:500">Kaftan Lounge</td><td style="font-family:JetBrains Mono,monospace">&#8358;95,000</td><td style="color:var(--txt2)">10 Feb 2026</td><td style="color:var(--red);font-weight:500">40 days</td><td><span class="tag tr">Overdue</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--g)">INV-0438</td><td style="font-weight:500">A.I.L. Infrastructures</td><td style="font-family:JetBrains Mono,monospace">&#8358;340,000</td><td style="color:var(--txt2)">19 Mar 2026</td><td style="color:var(--g);font-weight:500">—</td><td><span class="tag tg">Paid</span></td></tr><tr><td style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--g)">INV-0437</td><td style="font-weight:500">Glenstar Marine</td><td style="font-family:JetBrains Mono,monospace">&#8358;180,000</td><td style="color:var(--txt2)">20 Feb 2026</td><td style="color:var(--g);font-weight:500">—</td><td><span class="tag tg">Paid</span></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VENDORS -->
+  <div class="view" id="view-vendors">
+    <div class="stats">
+      <div class="stat g"><div class="stat-n">18</div><div class="stat-l">Approved</div></div>
+      <div class="stat a"><div class="stat-n">3</div><div class="stat-l">Pending</div><div class="stat-d warn">WF08 &middot; 48h follow-up</div></div>
+      <div class="stat r"><div class="stat-n">2</div><div class="stat-l">Insurance expiring</div></div>
+      <div class="stat b"><div class="stat-n">4.2</div><div class="stat-l">Avg score</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Vendor network</h3><button class="btn btn-sm btn-a" onclick="sv('vendor-form')">+ Apply</button></div>
+      <table class="tbl">
+        <thead><tr><th>Company</th><th>Contact</th><th>Service</th><th>Score</th><th>Insurance</th><th>Status</th></tr></thead>
+        <tbody><tr><td style="font-weight:500">CleanPro Ltd</td><td style="color:var(--txt2)">Chidi Okafor</td><td style="color:var(--txt2)">Janitorial</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">4.8/5</td><td><span class="tag tg">Valid</span></td><td><span class="tag tg">Approved</span></td></tr><tr><td style="font-weight:500">SafeGuard Security</td><td style="color:var(--txt2)">Musa Aliyu</td><td style="color:var(--txt2)">Security</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">4.5/5</td><td><span class="tag tg">Valid</span></td><td><span class="tag tg">Approved</span></td></tr><tr><td style="font-weight:500">ElectraTech</td><td style="color:var(--txt2)">Seun Adebayo</td><td style="color:var(--txt2)">Electrical</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">4.1/5</td><td><span class="tag ta">Expiring</span></td><td><span class="tag tgr">Active</span></td></tr><tr><td style="font-weight:500">CleanTech Ltd</td><td style="color:var(--txt2)">Amaka Eze</td><td style="color:var(--txt2)">Janitorial</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">—</td><td><span class="tag ta">Pending</span></td><td><span class="tag ta">Applied today</span></td></tr><tr><td style="font-weight:500">SecureNow</td><td style="color:var(--txt2)">Kunle Bello</td><td style="color:var(--txt2)">Security</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">—</td><td><span class="tag ta">Pending</span></td><td><span class="tag tgr">2d ago</span></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="view" id="view-clients">
+    <div class="stats">
+      <div class="stat g"><div class="stat-n">12</div><div class="stat-l">Active clients</div></div>
+      <div class="stat a"><div class="stat-n">5</div><div class="stat-l">New enquiries</div><div class="stat-d warn">AI front desk WF01</div></div>
+      <div class="stat r"><div class="stat-n">3</div><div class="stat-l">Renewals due</div><div class="stat-d dn">WF07</div></div>
+      <div class="stat b"><div class="stat-n">8</div><div class="stat-l">Follow-ups</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Client directory</h3><button class="btn btn-sm" onclick="sv('lead-form')">+ New Enquiry</button></div>
+      <table class="tbl">
+        <thead><tr><th>Client</th><th>Type</th><th>Value</th><th>Status</th><th>Renewal</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:500">Planet Projects Ltd</td><td style="color:var(--txt2)">Government</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">&#8358;1.2M/yr</td><td><span class="tag tg">Active</span></td><td style="font-size:10px;color:var(--txt3)">Mar 2027</td></tr>
+          <tr><td style="font-weight:500">Borge Nigeria Ltd</td><td style="color:var(--txt2)">Corporate</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">&#8358;440K/yr</td><td><span class="tag tg">Active</span></td><td style="font-size:10px;color:var(--txt3)">Nov 2026</td></tr>
+          <tr><td style="font-weight:500">Kaftan Lounge</td><td style="color:var(--txt2)">Hospitality</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">&#8358;190K/yr</td><td><span class="tag tg">Active</span></td><td style="font-size:10px;color:var(--amber)">Feb 2026</td></tr>
+          <tr><td style="font-weight:500">A.I.L. Infrastructures</td><td style="color:var(--txt2)">Infrastructure</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">&#8358;680K/yr</td><td><span class="tag tg">Active</span></td><td style="font-size:10px;color:var(--txt3)">Jun 2026</td></tr>
+          <tr><td style="font-weight:500">NAHCO</td><td style="color:var(--txt2)">Aviation</td><td style="font-family:JetBrains Mono,monospace;font-size:10px">&#8358;320K</td><td><span class="tag ttgr">Completed</span></td><td style="font-size:10px;color:var(--txt3)">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHANGE IMPACT PLAN — MYTHROS FRAMEWORK -->
+  <div class="view" id="view-changeplan">
+    <div class="mss-header">
+      <div class="mss-badge">Mythros Solution Services &middot; Change Management Framework</div>
+      <div class="mss-title">Fixit Multiconcepts &mdash; Digital Transformation Impact Plan</div>
+      <div class="mss-sub">The Mythros Change Framework assesses transformation across 5 dimensions: People, Process, Systems, Behaviours, Culture. Each dimension is scored 0&ndash;3 (0=no change, 3=high impact) and mapped from AS-IS to TO-BE. This is the standard framework applied to all Mythros client engagements.</div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Mythros Change Impact Matrix &mdash; Fixit Multiconcepts</h3><span class="meta">Score: 0=Low impact &middot; 3=High impact</span></div>
+      <div class="card-b" style="padding:9px">
+        <table class="ci-tbl">
+          <thead><tr><th>Dimension</th><th style="width:65px;text-align:center">Score</th><th>AS-IS (current state)</th><th>TO-BE (with Fixit CRM)</th></tr></thead>
+          <tbody><tr><td style="font-weight:700;font-size:11px;white-space:nowrap">PEOPLE</td><td style="text-align:center"><span class="ci-score cs2">2</span></td><td style="color:var(--red);font-size:10px;line-height:1.5">Personal Gmail, WhatsApp for all operations. No formal record system. 9 years of institutional knowledge at risk when staff leave.</td><td style="color:#065f46;font-size:10px;line-height:1.5">Every action logged in CRM. GPS-verified attendance. Role-based access. Training records tracked. Zero data loss from staff turnover.</td></tr><tr><td style="font-weight:700;font-size:11px;white-space:nowrap">PROCESS</td><td style="text-align:center"><span class="ci-score cs2">2</span></td><td style="color:var(--red);font-size:10px;line-height:1.5">All processes manual — incident reporting verbal, invoicing in Excel, vendor management via personal contacts, no project management system.</td><td style="color:#065f46;font-size:10px;line-height:1.5">Standardised digital workflows via n8n. Incident auto-logging. Invoice auto-reminders (7/14/30 day). GPS clock-in. Vendor portal with 48h follow-up.</td></tr><tr><td style="font-weight:700;font-size:11px;white-space:nowrap">SYSTEMS</td><td style="text-align:center"><span class="ci-score cs3">3</span></td><td style="color:var(--red);font-size:10px;line-height:1.5">Personal Gmail, Google Drive (recently restructured), WhatsApp only. No integration between tools. No inbound lead generation ever.</td><td style="color:#065f46;font-size:10px;line-height:1.5">Fixit CRM + 10 n8n automation workflows. WhatsApp Business API. Google Sheets sync. Gmail integration. AI-powered 24/7 front desk (WF01).</td></tr><tr><td style="font-weight:700;font-size:11px;white-space:nowrap">BEHAVIOURS</td><td style="text-align:center"><span class="ci-score cs2">2</span></td><td style="color:var(--red);font-size:10px;line-height:1.5">Staff call or WhatsApp supervisors for everything. No digital record keeping. No dashboards. Attendance tracked informally by phone.</td><td style="color:#065f46;font-size:10px;line-height:1.5">GPS app clock-in via CRM. Digital incident forms. AI classifies enquiries automatically. Morning digest sent to GM at 7am daily.</td></tr><tr><td style="font-weight:700;font-size:11px;white-space:nowrap">CULTURE</td><td style="text-align:center"><span class="ci-score cs3">3</span></td><td style="color:var(--red);font-size:10px;line-height:1.5">Growing admin frustration. Leadership has zero real-time operational visibility. Zero inbound leads in 10 years of operation.</td><td style="color:#065f46;font-size:10px;line-height:1.5">Real-time operations dashboard. AI front desk handles enquiries 24/7. Social media content generated weekly by AI. Full leadership KPI visibility.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Mythros Framework &mdash; Key principles</h3></div>
+        <div class="card-b">
+          <div class="kpi"><span class="kpi-l">Framework owner</span><span class="kpi-v">Mythros Solution Services</span></div>
+          <div class="kpi"><span class="kpi-l">Assessment methodology</span><span class="kpi-v">5-dimension impact scoring (0-3)</span></div>
+          <div class="kpi"><span class="kpi-l">Applied to</span><span class="kpi-v">All Mythros client digital transformation engagements</span></div>
+          <div class="kpi"><span class="kpi-l">Change score (Fixit)</span><span class="kpi-v">2.4 / 3.0 — significant transformation</span></div>
+          <div class="kpi"><span class="kpi-l">Critical success factor</span><span class="kpi-v">Staff onboarding and adoption (Phase B)</span></div>
+          <div class="kpi"><span class="kpi-l">Monitoring</span><span class="kpi-v">Monthly adoption metrics to GM + MD</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Mythros vs traditional framework</h3></div>
+        <div class="card-b">
+          <div style="font-size:10px;color:var(--txt2);line-height:1.7">
+            <p style="margin-bottom:8px">Traditional change frameworks (e.g. ADKAR, Kotter 8-Step) are designed for large enterprise change programmes with dedicated change management teams and 12+ month timelines.</p>
+            <p style="margin-bottom:8px">The <strong style="color:var(--txt)">Mythros Solution Services Framework</strong> is designed for SME digital transformations in growth markets. It is faster, more practical, and built around the realities of businesses like Fixit — lean teams, WhatsApp-first communication, and the need for visible results within 90 days.</p>
+            <p>Three phases: <strong style="color:var(--g)">Awareness &rarr; Capability &rarr; Reinforcement</strong>. Delivery by Mythros throughout.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING — MYTHROS FRAMEWORK -->
+  <div class="view" id="view-onboarding">
+    <div class="mss-header">
+      <div class="mss-badge">Mythros Solution Services &middot; Staff Onboarding Programme</div>
+      <div class="mss-title">Fixit Multiconcepts &mdash; CRM Adoption Plan</div>
+      <div class="mss-sub">Three-phase delivery: Awareness (Weeks 1&ndash;2) &rarr; Capability (Weeks 3&ndash;6) &rarr; Reinforcement (Month 2+). Mythros leads all three phases in partnership with Temilade (GM).</div>
+    </div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-h"><h3>Phase A &middot; Awareness</h3><span class="meta" style="color:var(--g)">Weeks 1&ndash;2</span></div>
+        <div class="card-b"><div class="ob-step"><div class="ob-n">1</div><div class="ob-t">All-hands briefing led by Temilade (GM)</div></div><div class="ob-step"><div class="ob-n">2</div><div class="ob-t">Mythros Solution Services Change Newsletter distributed to all staff</div></div><div class="ob-step"><div class="ob-n">3</div><div class="ob-t">FAQ: Why we are moving from WhatsApp/Gmail to the CRM</div></div><div class="ob-step"><div class="ob-n">4</div><div class="ob-t">WhatsApp group created: Fixit CRM Rollout</div></div><div class="ob-step"><div class="ob-n">5</div><div class="ob-t">Posters and QR codes at all 5 active sites</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Phase B &middot; Capability</h3><span class="meta" style="color:var(--blue)">Weeks 3&ndash;6</span></div>
+        <div class="card-b"><div class="ob-step"><div class="ob-n">1</div><div class="ob-t">Role-specific training — site supervisors first</div></div><div class="ob-step"><div class="ob-n">2</div><div class="ob-t">GPS clock-in app demo at each of the 7 registered sites</div></div><div class="ob-step"><div class="ob-n">3</div><div class="ob-t">Digital incident logging walkthrough for all staff</div></div><div class="ob-step"><div class="ob-n">4</div><div class="ob-t">Finance module training — invoice tracker and Google Sheets sync</div></div><div class="ob-step"><div class="ob-n">5</div><div class="ob-t">Laminated SOP cards at each site (plain English, no jargon)</div></div><div class="ob-step"><div class="ob-n">6</div><div class="ob-t">WhatsApp support group: live questions answered by Mythros</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Phase C &middot; Reinforcement</h3><span class="meta" style="color:var(--amber)">Month 2+</span></div>
+        <div class="card-b"><div class="ob-step"><div class="ob-n">1</div><div class="ob-t">Monthly CRM adoption metrics sent to GM and MD</div></div><div class="ob-step"><div class="ob-n">2</div><div class="ob-t">CRM champion identified at each site</div></div><div class="ob-step"><div class="ob-n">3</div><div class="ob-t">Non-adoption flagged within 2 weeks, not at review cycle</div></div><div class="ob-step"><div class="ob-n">4</div><div class="ob-t">System updates based on real staff feedback via support group</div></div><div class="ob-step"><div class="ob-n">5</div><div class="ob-t">30-day post-launch review call with Temilade</div></div><div class="ob-step"><div class="ob-n">6</div><div class="ob-t">90-day success metrics presented to MD by Mythros</div></div></div>
+      </div>
+    </div>
+    <div class="g2" style="margin-top:0">
+      <div class="card">
+        <div class="card-h"><h3>90-day success metrics</h3><span class="meta">Mythros measures these at handover</span></div>
+        <div class="card-b">
+          <div class="kpi"><span class="kpi-l">Staff using CRM daily</span><span class="kpi-v" style="color:var(--g)">Target: 85%+</span></div>
+          <div class="kpi"><span class="kpi-l">All 10 n8n workflows active</span><span class="kpi-v">10 / 10</span></div>
+          <div class="kpi"><span class="kpi-l">Projects with complete records</span><span class="kpi-v">12 / 12</span></div>
+          <div class="kpi"><span class="kpi-l">Incidents formally logged</span><span class="kpi-v">100% via WF04</span></div>
+          <div class="kpi"><span class="kpi-l">Finance visibility</span><span class="kpi-v">Full P&L live in CRM</span></div>
+          <div class="kpi"><span class="kpi-l">Data loss events</span><span class="kpi-v" style="color:var(--g)">0 — all data in CRM</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Immediate actions (this week)</h3></div>
+        <div class="card-b"><div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--txt2)"><span style="color:var(--g)">&#9654;</span>Complete all process SOPs for each n8n workflow</div><div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--txt2)"><span style="color:var(--g)">&#9654;</span>Train all 51 staff on GPS clock-in app</div><div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--txt2)"><span style="color:var(--g)">&#9654;</span>Activate all 10 n8n workflows on arie08.app.n8n.cloud</div><div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--txt2)"><span style="color:var(--g)">&#9654;</span>Set FIXIT_CRM_URL once CRM is deployed to Netlify</div><div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--txt2)"><span style="color:var(--g)">&#9654;</span>Generate permanent WhatsApp System User token for Fixit</div><div style="display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--txt2)"><span style="color:var(--g)">&#9654;</span>Onboard Fixit Meta Business Account as partner under Mythros</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOSTING GUIDE -->
+  <div class="view" id="view-hosting">
+    <div class="mss-header">
+      <div class="mss-badge">Mythros Solution Services &middot; Hosting Recommendation</div>
+      <div class="mss-title">Where to host the Fixit CRM in Nigeria</div>
+      <div class="mss-sub">The CRM frontend is a single HTML file — no server required. It calls n8n webhooks directly from the browser. Hosting is simply putting the file online at a URL Fixit staff can access.</div>
+    </div>
+
+    <div class="host-rec">
+      <div class="host-rec-title">&#9733; Recommendation: Netlify (free) — Deploy in 2 minutes</div>
+      <div class="host-rec-sub">Netlify is the fastest way to get the Fixit CRM live. Free tier, HTTPS, global CDN including Africa. No server, no server management, no monthly cost. URL: <strong>fixit-crm.netlify.app</strong> or connect the custom domain <strong>crm.fixitmulticoncepts.com</strong>.</div>
+      <div class="host-steps">
+        <div class="host-step"><div class="host-step-n">1</div><div>Go to <strong>netlify.com</strong> &rarr; Sign up with your email (free)</div></div>
+        <div class="host-step"><div class="host-step-n">2</div><div>Click <strong>Add new site &rarr; Deploy manually</strong></div></div>
+        <div class="host-step"><div class="host-step-n">3</div><div><strong>Drag and drop</strong> the <code>Fixit_CRM_Final.html</code> file onto the deploy box</div></div>
+        <div class="host-step"><div class="host-step-n">4</div><div>Netlify gives you a live URL immediately — e.g. <code>bold-lion-abc123.netlify.app</code></div></div>
+        <div class="host-step"><div class="host-step-n">5</div><div>Rename it: Site settings &rarr; Change site name &rarr; type <code>fixit-crm</code> &rarr; URL becomes <strong>fixit-crm.netlify.app</strong></div></div>
+        <div class="host-step"><div class="host-step-n">6</div><div>Share the URL with Temilade and the Fixit team — they can open it on any browser, laptop or phone</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>All hosting options compared</h3></div>
+      <div class="card-b"><div class="lrow" style="align-items:flex-start;padding:10px 0"><div class="lm"><div class="lt">Netlify <span class="tag tg" style="margin-left:6px">&#9733; RECOMMENDED</span></div><div class="ls" style="margin-top:2px">netlify.com &middot; Free</div><div style="font-size:10px;color:var(--txt2);margin-top:4px;line-height:1.5">Drag and drop HTML file — live in 2 minutes. URL: fixit-crm.netlify.app. Add custom domain crm.fixitmulticoncepts.com for free.</div></div></div><div class="lrow" style="align-items:flex-start;padding:10px 0"><div class="lm"><div class="lt">Vercel <span class="tag tgr" style="margin-left:6px">Good option</span></div><div class="ls" style="margin-top:2px">vercel.com &middot; Free</div><div style="font-size:10px;color:var(--txt2);margin-top:4px;line-height:1.5">Similar to Netlify. Slightly more technical. Better if you later add a backend API.</div></div></div><div class="lrow" style="align-items:flex-start;padding:10px 0"><div class="lm"><div class="lt">cPanel hosting (Nigeria) <span class="tag tgr" style="margin-left:6px">Best for local IT support</span></div><div class="ls" style="margin-top:2px">whogohost.com / smartweb.com.ng &middot; ~₦5,000/month</div><div style="font-size:10px;color:var(--txt2);margin-top:4px;line-height:1.5">Nigerian hosting companies. Familiar to many Lagos businesses. Good for full website + CRM together.</div></div></div><div class="lrow" style="align-items:flex-start;padding:10px 0"><div class="lm"><div class="lt">Railway.app <span class="tag tgr" style="margin-left:6px">For CRM backend later</span></div><div class="ls" style="margin-top:2px">railway.app &middot; Free tier</div><div style="font-size:10px;color:var(--txt2);margin-top:4px;line-height:1.5">When FIXIT_CRM_URL needs a backend. Host the CRM API here. Scales to paid as Fixit grows.</div></div></div></div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Custom domain setup (optional)</h3></div>
+        <div class="card-b">
+          <div style="font-size:11px;color:var(--txt2);line-height:1.7;margin-bottom:8px">If Fixit registers <strong style="color:var(--txt)">fixitmulticoncepts.com</strong>, you can run the CRM at <strong style="color:var(--g)">crm.fixitmulticoncepts.com</strong> for free on Netlify.</div>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-d">Step 1</div><div class="tl-t">Register domain at Whogohost or Smartweb Nigeria (~&#8358;8,000/yr)</div></div>
+            <div class="tl-item"><div class="tl-d">Step 2</div><div class="tl-t">In Netlify: Domain settings &rarr; Add custom domain &rarr; type crm.fixitmulticoncepts.com</div></div>
+            <div class="tl-item"><div class="tl-d">Step 3</div><div class="tl-t">Netlify shows you a CNAME record to add to the domain registrar DNS</div></div>
+            <div class="tl-item"><div class="tl-d">Step 4</div><div class="tl-t">DNS propagates in 10&ndash;60 minutes. Netlify auto-provisions free HTTPS.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Future: CRM backend hosting</h3></div>
+        <div class="card-b">
+          <div style="font-size:11px;color:var(--txt2);line-height:1.7;margin-bottom:8px">Once FIXIT_CRM_URL is needed (a real backend database), use <strong style="color:var(--txt)">Railway.app</strong> to host a Node.js or Python API.</div>
+          <div class="kpi"><span class="kpi-l">Platform</span><span class="kpi-v">Railway.app (railwary.app)</span></div>
+          <div class="kpi"><span class="kpi-l">Free tier</span><span class="kpi-v">$5/month credit — enough for 1 client app</span></div>
+          <div class="kpi"><span class="kpi-l">For each new client</span><span class="kpi-v">Deploy their own Railway project</span></div>
+          <div class="kpi"><span class="kpi-l">Database</span><span class="kpi-v">PostgreSQL (free on Railway)</span></div>
+          <div class="kpi"><span class="kpi-l">Deploy method</span><span class="kpi-v">Connect GitHub repo, auto-deploy on push</span></div>
+          <div class="kpi"><span class="kpi-l">Nigeria latency</span><span class="kpi-v">~180ms — acceptable for office use</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><h3>For multiple Mythros clients — the architecture</h3></div>
+      <div class="card-b">
+        <div style="font-size:11px;color:var(--txt2);line-height:1.8">
+          Each client gets their own: <strong style="color:var(--txt)">Netlify site</strong> (CRM frontend) + <strong style="color:var(--txt)">Railway app</strong> (backend) + <strong style="color:var(--txt)">n8n workspace on arie08.app.n8n.cloud</strong> (automations) + <strong style="color:var(--txt)">Meta Business account</strong> (WhatsApp).<br><br>
+          Mythros manages all of these. Each client only sees their CRM URL. The Mythros n8n account scales to unlimited workflows. Railway charges per app but free tier covers 3&ndash;4 small clients. Total cost per new client once Fixit is built: approximately <strong style="color:var(--g)">&#8358;0 to &#8358;5,000/month</strong> depending on database size.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST PANEL -->
+  <div class="view" id="view-test-panel">
+    <div class="abanner ab-b">&#128295; Send test payloads to your live n8n webhooks. Make sure each workflow is <strong>toggled Active</strong> in n8n before testing. Watch your WhatsApp for alerts.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h"><h3>Test WF02 &mdash; Lead Capture</h3></div>
+        <div class="card-b">
+          <div style="font-size:10px;color:var(--txt2);margin-bottom:8px">Sends test lead. You should receive a WhatsApp on GM_WHATSAPP and a Gmail confirmation.</div>
+          <button class="btn" id="tl-btn" style="width:100%;justify-content:center">Send test lead <span class="sp" id="tl-sp" style="display:none"></span></button>
+          <div id="tl-res" class="res-box" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Test WF04 &mdash; Incident (Low)</h3></div>
+        <div class="card-b">
+          <div style="font-size:10px;color:var(--txt2);margin-bottom:8px">Sends LOW severity incident. GM should receive a WhatsApp notification.</div>
+          <button class="btn btn-r" id="ti-btn" style="width:100%;justify-content:center">Send test incident <span class="sp" id="ti-sp" style="display:none"></span></button>
+          <div id="ti-res" class="res-box" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Test WF03 &mdash; Clock-In (Oshodi)</h3></div>
+        <div class="card-b">
+          <div style="font-size:10px;color:var(--txt2);margin-bottom:8px">Sends GPS coordinates for Oshodi site. n8n should detect the site match.</div>
+          <button class="btn btn-b" id="tc-btn" style="width:100%;justify-content:center">Send test clock-in <span class="sp" id="tc-sp" style="display:none"></span></button>
+          <div id="tc-res" class="res-box" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><h3>Test WF08 &mdash; Vendor Apply</h3></div>
+        <div class="card-b">
+          <div style="font-size:10px;color:var(--txt2);margin-bottom:8px">Sends test vendor application. GM WhatsApp + Gmail to vendor triggered.</div>
+          <button class="btn btn-a" id="tv-btn" style="width:100%;justify-content:center">Send test vendor <span class="sp" id="tv-sp" style="display:none"></span></button>
+          <div id="tv-res" class="res-box" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>Response log</h3><button class="btn-outline" style="font-size:9px;padding:3px 8px" onclick="document.getElementById('raw-log').textContent='Cleared.'">Clear</button></div>
+      <div class="card-b" style="padding:0">
+        <div id="raw-log" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--txt2);background:var(--bg);padding:12px;min-height:80px;white-space:pre-wrap;line-height:1.6">Waiting for test requests...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBHOOKS -->
+  <div class="view" id="view-webhooks">
+    <div class="card">
+      <div class="card-h"><h3>Live webhook endpoints</h3><button class="btn btn-sm" id="check-all-btn">Check all</button></div>
+      <table class="tbl">
+        <thead><tr><th>WF</th><th>Name</th><th>Production URL</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g)">WF02</td><td style="font-weight:500">Lead Capture</td><td style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3)">/webhook/fixit-lead</td><td id="ws-02">&#8212;</td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g)">WF03</td><td style="font-weight:500">GPS Clock-In</td><td style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3)">/webhook/fixit-clockin</td><td id="ws-03">&#8212;</td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g)">WF04</td><td style="font-weight:500">Incident Escalation</td><td style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3)">/webhook/fixit-incident</td><td id="ws-04">&#8212;</td></tr>
+          <tr><td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g)">WF08</td><td style="font-weight:500">Vendor Application</td><td style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--txt3)">/webhook/fixit-vendor-apply</td><td id="ws-08">&#8212;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-h"><h3>n8n credentials in use</h3></div>
+      <table class="tbl">
+        <thead><tr><th>Credential</th><th>Type</th><th>Used in workflows</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:500">Header Auth account</td><td style="color:var(--txt2)">Header Auth (OpenAI)</td><td style="font-size:10px;color:var(--txt2)">WF01, WF06, WF07</td><td><span class="tag tg">Connected</span></td></tr>
+          <tr><td style="font-weight:500">Header Auth account 2</td><td style="color:var(--txt2)">Header Auth (WhatsApp)</td><td style="font-size:10px;color:var(--txt2)">WF01, WF02, WF03, WF04, WF05, WF06, WF08, WF09, WF10</td><td><span class="tag tg">Connected</span></td></tr>
+          <tr><td style="font-weight:500">Google Sheets account 6</td><td style="color:var(--txt2)">OAuth2</td><td style="font-size:10px;color:var(--txt2)">WF02 &rarr; FixiT Multiconcept &rarr; Leads tab</td><td><span class="tag tg">Connected</span></td></tr>
+          <tr><td style="font-weight:500">Gmail account 6</td><td style="color:var(--txt2)">OAuth2</td><td style="font-size:10px;color:var(--txt2)">WF02, WF05, WF08</td><td><span class="tag tg">Connected</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<div class="toast-wrap" id="toastwrap"></div>
+
+<script>
+var N8N="https://arie08.app.n8n.cloud";
+var WH={lead:N8N+"/webhook/fixit-lead",incident:N8N+"/webhook/fixit-incident",clockin:N8N+"/webhook/fixit-clockin",vendor:N8N+"/webhook/fixit-vendor-apply"};
+var TITLES={"dashboard":"Dashboard","lead-form":"New Enquiry - WF02","incident-form":"Log Incident - WF04","clockin-form":"Staff Clock-In - WF03","vendor-form":"Vendor Application - WF08","projects":"Projects","staff":"Staff & HR","incidents":"Incidents & H&S","finance":"Invoices & Finance","vendors":"Vendor Network","clients":"Clients & CRM","changeplan":"Change Impact Plan","onboarding":"Staff Onboarding","hosting":"Hosting Guide","test-panel":"Test & Debug","webhooks":"Webhook URLs"};
+function sv(id){
+  document.querySelectorAll(".view").forEach(function(v){v.classList.remove("active");});
+  document.querySelectorAll(".sb-item").forEach(function(i){i.classList.remove("active");});
+  var pg=document.getElementById("view-"+id);if(pg)pg.classList.add("active");
+  var si=document.querySelector(".sb-item[data-view=\""+id+"\"]");if(si)si.classList.add("active");
+  var tEl=document.getElementById("tb-title");if(tEl)tEl.textContent=TITLES[id]||id;
+  var cEl=document.getElementById("content");if(cEl)cEl.scrollTop=0;
+}
+document.querySelectorAll(".sb-item").forEach(function(el){el.addEventListener("click",function(){var v=this.getAttribute("data-view");if(v)sv(v);});});
+document.addEventListener("click",function(e){
+  var el=e.target;
+  for(var ii=0;ii<8;ii++){
+    if(!el||el===document.body)break;
+    var dv=el.getAttribute("data-view");if(dv){sv(dv);return;}
+    el=el.parentElement;
+  }
+});
+function showToast(msg,type){
+  var w=document.getElementById("toastwrap");if(!w)return;
+  var t=document.createElement("div");
+  t.className="toast-item"+(type?" "+type:"");
+  t.textContent=msg;
+  w.appendChild(t);
+  setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},3500);
+}
+function addActivity(label){
+  var al=document.getElementById("activity-log");if(!al)return;
+  var now=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  var ni=document.createElement("div");ni.className="tl-item";
+  var dd=document.createElement("div");dd.className="tl-d";dd.textContent="Manual . "+now;
+  var dt=document.createElement("div");dt.className="tl-t";dt.textContent="+ "+label;
+  ni.appendChild(dd);ni.appendChild(dt);
+  al.insertBefore(ni,al.firstChild);
+  var la=document.getElementById("last-action");if(la)la.textContent="Last: "+now;
+}
+function callWH(url,payload,resId,spId,btnId,logMsg){
+  var res=document.getElementById(resId);
+  var sp=document.getElementById(spId);
+  var btn=document.getElementById(btnId);
+  var log=document.getElementById("raw-log");
+  if(res){res.className="res-box";res.style.display="none";}
+  if(sp)sp.style.display="inline-block";
+  if(btn)btn.disabled=true;
+  if(log)log.textContent="POST "+url+"\n\n"+JSON.stringify(payload,null,2);
+  fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+  .then(function(r){return r.text().then(function(tx){return{s:r.status,t:tx};});})
+  .then(function(d){
+    if(sp)sp.style.display="none";
+    if(btn)btn.disabled=false;
+    var ok=d.s>=200&&d.s<300;
+    if(res){
+      res.className="res-box show "+(ok?"res-ok":"res-err");
+      res.style.display="block";
+      var h=document.createElement("div");h.className="res-title";h.textContent=ok?"Sent to n8n successfully":"Error "+d.s;
+      var p=document.createElement("div");p.style.fontSize="10px";p.style.marginTop="3px";
+      p.textContent=ok?"n8n processing. Check WhatsApp for GM alert.":"Check workflow is Active in n8n.";
+      var pre=document.createElement("div");pre.className="res-pre";pre.textContent=d.t.slice(0,300);
+      res.innerHTML="";res.appendChild(h);res.appendChild(p);res.appendChild(pre);
+    }
+    if(log)log.textContent="Response "+d.s+":\n"+d.t;
+    showToast(ok?"n8n triggered - "+(logMsg||"done"):"Error "+d.s+" - Is workflow Active?",ok?"ok":"err");
+    if(ok&&logMsg)addActivity(logMsg);
+  })
+  .catch(function(err){
+    if(sp)sp.style.display="none";
+    if(btn)btn.disabled=false;
+    if(res){
+      res.className="res-box show res-err";res.style.display="block";
+      var h=document.createElement("div");h.className="res-title";h.textContent="Network error";
+      var pre=document.createElement("div");pre.className="res-pre";pre.textContent=err.message;
+      res.innerHTML="";res.appendChild(h);res.appendChild(pre);
+    }
+    if(log)log.textContent="Error: "+err.message;
+    showToast("Cannot reach n8n - check internet connection","err");
+  });
+}
+function clearForm(fields,selId,resId){
+  fields.forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+  if(selId){var s=document.getElementById(selId);if(s)s.selectedIndex=0;}
+  var r=document.getElementById(resId);if(r){r.className="res-box";r.style.display="none";}
+}
+function copyUrl(btn,url){
+  navigator.clipboard.writeText(url).then(function(){
+    btn.textContent="Copied!";btn.classList.add("done");
+    setTimeout(function(){btn.textContent="Copy";btn.classList.remove("done");},2000);
+  });
+}
+var lBtn=document.getElementById("l-btn");
+if(lBtn)lBtn.addEventListener("click",function(){
+  var name=document.getElementById("l-name").value.trim();
+  var phone=document.getElementById("l-phone").value.trim();
+  var type=document.getElementById("l-type").value;
+  var msg=document.getElementById("l-msg").value.trim();
+  if(!name||!phone||!type||!msg){showToast("Please fill in all required fields","err");return;}
+  callWH(WH.lead,{name:name,phone:phone,email:document.getElementById("l-email").value.trim(),enquiry_type:type,message:msg,channel:"crm_dashboard",source:"website_form"},"l-res","l-sp","l-btn","Lead from "+name+" - WF02");
+});
+(function(){
+  var dtEl=document.getElementById("i-dt");
+  if(dtEl){var n=new Date();n.setMinutes(n.getMinutes()-n.getTimezoneOffset());dtEl.value=n.toISOString().slice(0,16);}
+})();
+var iBtn=document.getElementById("i-btn");
+if(iBtn)iBtn.addEventListener("click",function(){
+  var site=document.getElementById("i-site").value;
+  var sev=document.getElementById("i-sev").value;
+  var staff=document.getElementById("i-staff").value.trim();
+  var desc=document.getElementById("i-desc").value.trim();
+  if(!site||!sev||!staff||!desc){showToast("Please fill in all required fields","err");return;}
+  callWH(WH.incident,{site:site,severity:sev,staff_name:staff,description:desc,action_taken:document.getElementById("i-action").value.trim(),logged_at:document.getElementById("i-dt").value||new Date().toISOString()},"i-res","i-sp","i-btn","Incident - "+sev+" - "+site);
+});
+var gpsBtn=document.getElementById("gps-btn");
+if(gpsBtn)gpsBtn.addEventListener("click",function(){
+  var st=document.getElementById("gps-status");
+  if(st)st.textContent="Getting GPS...";
+  if(!navigator.geolocation){if(st)st.textContent="GPS not supported. Enter manually.";return;}
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      document.getElementById("c-lat").value=pos.coords.latitude.toFixed(6);
+      document.getElementById("c-lng").value=pos.coords.longitude.toFixed(6);
+      if(st){st.textContent="GPS: "+pos.coords.latitude.toFixed(4)+", "+pos.coords.longitude.toFixed(4)+" ("+Math.round(pos.coords.accuracy)+"m)";st.style.color="var(--g)";}
+    },
+    function(err){if(st){st.textContent="GPS error: "+err.message;st.style.color="var(--red)";}},
+    {enableHighAccuracy:true,timeout:10000}
+  );
+});
+var cBtn=document.getElementById("c-btn");
+if(cBtn)cBtn.addEventListener("click",function(){
+  var id=document.getElementById("c-id").value.trim();
+  var nm=document.getElementById("c-name").value.trim();
+  var lat=document.getElementById("c-lat").value.trim();
+  var lng=document.getElementById("c-lng").value.trim();
+  if(!id||!nm||!lat||!lng){showToast("Staff ID, name and GPS are required","err");return;}
+  callWH(WH.clockin,{staff_id:id,staff_name:nm,latitude:parseFloat(lat),longitude:parseFloat(lng),type:document.getElementById("c-type").value},"c-res","c-sp","c-btn",nm+" clocked in - WF03");
+});
+var vBtn=document.getElementById("v-btn");
+if(vBtn)vBtn.addEventListener("click",function(){
+  var co=document.getElementById("v-co").value.trim();
+  var cn=document.getElementById("v-cn").value.trim();
+  var em=document.getElementById("v-em").value.trim();
+  var ph=document.getElementById("v-ph").value.trim();
+  var sv2=document.getElementById("v-sv").value;
+  if(!co||!cn||!em||!ph||!sv2){showToast("Please fill in all required fields","err");return;}
+  callWH(WH.vendor,{company_name:co,contact_name:cn,email:em,phone:ph,services:[sv2],coverage_area:document.getElementById("v-cv").value.trim()},"v-res","v-sp","v-btn",co+" applied - WF08");
+});
+var tlBtn=document.getElementById("tl-btn");
+if(tlBtn)tlBtn.addEventListener("click",function(){
+  callWH(WH.lead,{name:"TEST - Mythros Demo",phone:"+234800000000",email:"test@mythrossolutionservices.co.uk",enquiry_type:"facilities_management",message:"TEST from Fixit CRM - please ignore.",channel:"test_panel",source:"website_form"},"tl-res","tl-sp","tl-btn","Test lead - WF02");
+});
+var tiBtn=document.getElementById("ti-btn");
+if(tiBtn)tiBtn.addEventListener("click",function(){
+  callWH(WH.incident,{site:"Oshodi Bus Interchange",severity:"low",staff_name:"CRM Test",description:"TEST - from Fixit CRM dashboard. No action required.",action_taken:"Test only",logged_at:new Date().toISOString()},"ti-res","ti-sp","ti-btn","Test incident - WF04");
+});
+var tcBtn=document.getElementById("tc-btn");
+if(tcBtn)tcBtn.addEventListener("click",function(){
+  callWH(WH.clockin,{staff_id:"TEST-001",staff_name:"CRM Test",latitude:6.5521,longitude:3.3467,type:"in"},"tc-res","tc-sp","tc-btn","Test clock-in - WF03");
+});
+var tvBtn=document.getElementById("tv-btn");
+if(tvBtn)tvBtn.addEventListener("click",function(){
+  callWH(WH.vendor,{company_name:"TEST Vendor - Ignore",contact_name:"CRM Test",email:"test@mythrossolutionservices.co.uk",phone:"+234800000000",services:["Janitorial"],coverage_area:"Test"},"tv-res","tv-sp","tv-btn","Test vendor - WF08");
+});
+var clrBtn=document.getElementById("clear-log-btn");
+if(clrBtn)clrBtn.addEventListener("click",function(){var l=document.getElementById("raw-log");if(l)l.textContent="Cleared.";});
+var WHS=[
+  {url:WH.lead,sb:"st-02",tbl:"ws-02"},
+  {url:WH.clockin,sb:"st-03",tbl:"ws-03"},
+  {url:WH.incident,sb:"st-04",tbl:"ws-04"},
+  {url:WH.vendor,sb:"st-08",tbl:"ws-08"}
+];
+function checkWH(w){
+  fetch(w.url,{method:"POST",headers:{"Content-Type":"application/json"},body:'{"_ping":true}'})
+  .then(function(r){
+    var ok=r.status>=200&&r.status<400;
+    var sb=document.getElementById(w.sb);
+    var tbl=document.getElementById(w.tbl);
+    if(sb){sb.textContent=ok?"LIVE":"Error "+r.status;sb.className=ok?"n8n-on":"n8n-off";}
+    if(tbl){var sp=document.createElement("span");sp.className=ok?"tag tg":"tag tr";sp.textContent=ok?"Live":"Error "+r.status;tbl.innerHTML="";tbl.appendChild(sp);}
+  })
+  .catch(function(){
+    var sb=document.getElementById(w.sb);var tbl=document.getElementById(w.tbl);
+    if(sb){sb.textContent="Offline";sb.className="n8n-off";}
+    if(tbl){var sp=document.createElement("span");sp.className="tag tr";sp.textContent="Offline";tbl.innerHTML="";tbl.appendChild(sp);}
+  });
+}
+function checkAll(){WHS.forEach(function(w){checkWH(w);});}
+setTimeout(checkAll,1500);
+var rBtn=document.getElementById("refresh-btn");if(rBtn)rBtn.addEventListener("click",checkAll);
+var caBtn=document.getElementById("check-all-btn");if(caBtn)caBtn.addEventListener("click",checkAll);
+</script>
+</body>
+</html>
